@@ -6,48 +6,16 @@
 // DELETE DATA ON SERVER
 
 import express from 'express'
-import { MongoClient, ObjectId } from 'mongodb'
-import { connectionString } from './constants.js';
+import { config } from 'dotenv';
+import { fruitRoutes } from './routes/fruits.js';
+import { usersRoutes } from './routes/users.js';
+config();
 
 const app = express();
 app.use(express.json());// this is to enable json type of body
 
-
-
-app.get('/fruits', async (req, res) => {
-    // get data from database
-    let client = new MongoClient(connectionString);
-    const connection = await client.connect();
-    const db = connection.db("master-session-db")
-
-
-    const data = await db.collection("fruits").find().toArray();
-    res.json(data);
-
-})
-
-app.post('/fruits', async (req, res) => {
-    // add data in the database
-    let client = new MongoClient(connectionString);
-    const connection = await client.connect();
-    const db = connection.db("master-session-db")
-
-
-    await db.collection("fruits").insertOne(req.body)
-    res.send("created");
-})
-
-app.delete("/fruits/:something", async (req, res) => {
-    // delete data from the database
-    let client = new MongoClient(connectionString);
-    const connection = await client.connect();
-    const db = connection.db("master-session-db")
-
-    let something = req.params.something;
-
-    await db.collection("fruits").deleteOne({ _id: new ObjectId(something) })
-    res.send("deleted.");
-})
+app.use("/", fruitRoutes)
+app.use("/", usersRoutes)
 
 
 app.listen(3001)
